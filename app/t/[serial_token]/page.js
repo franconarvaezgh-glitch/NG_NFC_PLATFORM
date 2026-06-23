@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import ProfileCard from '@/components/ProfileCard';
 
 // Forzar renderizado dinámico en cada request
@@ -12,6 +12,8 @@ export default async function CardRedirectPage({ params }) {
   if (!serial_token) {
     redirect('/activar');
   }
+
+  const supabase = getSupabase();
 
   if (!supabase) {
     return (
