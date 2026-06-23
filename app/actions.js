@@ -6,41 +6,23 @@ import { cookies } from 'next/headers';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-// Inicializar el cliente Supabase del lado del servidor
-const supabaseServer = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: false
-  }
-});
-
-/**
- * Asegura que el bucket 'logos' exista en Supabase Storage y sea público.
- */
-async function asegurarBucketLogos() {
-  try {
-    const { data: buckets } = await supabaseServer.storage.listBuckets();
-    const existe = buckets?.some(b => b.name === 'logos');
-
-    if (!existe) {
-      console.log('Creando bucket "logos" en Supabase Storage...');
-      const { error } = await supabaseServer.storage.createBucket('logos', {
-        public: true,
-        allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
-        fileSizeLimit: 3 * 1024 * 1024 // 3MB
-      });
-      if (error) {
-        console.warn('Advertencia al crear bucket (posiblemente ya existe o RLS restrictiva):', error.message);
+// Inicializar el cliente Supabase del lado del servidor de forma condicional para evitar crashes durante 'next build'
+const supabaseServer = supabaseUrl && supabaseKey
+  ? createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false
       }
-    }
-  } catch (e) {
-    console.error('Error al asegurar bucket de logos:', e);
-  }
-}
+    })
+  : null;
 
 /**
  * Valida si un serial existe y está libre para vinculación.
  */
 export async function verificarTarjeta(serial) {
+  if (!supabaseServer) {
+    return { success: false, error: 'El servidor de Supabase no está configurado.' };
+  }
+
   try {
     const { data: tarjeta, error } = await supabaseServer
       .from('tarjetas')
@@ -75,6 +57,7 @@ export async function verificarTarjeta(serial) {
  * Auto-confirma el email de un usuario existente en caso de que esté pendiente.
  */
 async function autoConfirmarUsuarioSiExiste(email) {
+  if (!supabaseServer) return false;
   try {
     const { data: { users }, error: listError } = await supabaseServer.auth.admin.listUsers();
     if (listError) throw listError;
@@ -101,6 +84,10 @@ async function autoConfirmarUsuarioSiExiste(email) {
  * Soporta la carga de archivos de imagen usando FormData.
  */
 export async function activarTarjeta(formData) {
+  if (!supabaseServer) {
+    return { success: false, error: 'El servidor de Supabase no está configurado.' };
+  }
+
   const serial = formData.get('serial');
   const email = formData.get('email');
   const password = formData.get('password');
@@ -260,6 +247,10 @@ export async function activarTarjeta(formData) {
  * Obtiene el perfil de un usuario verificado mediante su JWT access_token.
  */
 export async function obtenerPerfilAutenticado(accessToken) {
+  if (!supabaseServer) {
+    return { success: false, error: 'El servidor de Supabase no está configurado.' };
+  }
+
   try {
     const { data: { user }, error: authError } = await supabaseServer.auth.getUser(accessToken);
     if (authError || !user) {
@@ -301,6 +292,10 @@ export async function obtenerPerfilAutenticado(accessToken) {
  * Soporta la carga de archivos de imagen usando FormData y Supabase Storage.
  */
 export async function actualizarPerfilAutenticado(accessToken, formData) {
+  if (!supabaseServer) {
+    return { success: false, error: 'El servidor de Supabase no está configurado.' };
+  }
+
   try {
     const { data: { user }, error: authError } = await supabaseServer.auth.getUser(accessToken);
     if (authError || !user) {
@@ -400,6 +395,10 @@ export async function cerrarSesion() {
  * Auto-confirma al usuario en caso de que esté pendiente de confirmación de email.
  */
 export async function iniciarSesion(email, password) {
+  if (!supabaseServer) {
+    return { success: false, error: 'El servidor de Supabase no está configurado.' };
+  }
+
   try {
     let { data: authData, error: authError } = await supabaseServer.auth.signInWithPassword({
       email,
