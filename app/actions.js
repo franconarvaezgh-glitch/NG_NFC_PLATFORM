@@ -16,6 +16,32 @@ const supabaseServer = supabaseUrl && supabaseKey
   : null;
 
 /**
+ * Asegura que el bucket 'logos' exista en Supabase Storage y sea público.
+ */
+async function asegurarBucketLogos() {
+  if (!supabaseServer) return;
+  try {
+    const { data: buckets, error: listError } = await supabaseServer.storage.listBuckets();
+    if (listError) throw listError;
+    
+    const existe = buckets?.some(b => b.name === 'logos');
+    if (!existe) {
+      console.log('Creando bucket "logos" en Supabase Storage...');
+      const { error } = await supabaseServer.storage.createBucket('logos', {
+        public: true,
+        allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
+        fileSizeLimit: 3 * 1024 * 1024 // 3MB
+      });
+      if (error) {
+        console.warn('Advertencia al crear bucket (posiblemente ya existe o RLS restrictiva):', error.message);
+      }
+    }
+  } catch (e) {
+    console.error('Error al asegurar bucket de logos:', e);
+  }
+}
+
+/**
  * Valida si un serial existe y está libre para vinculación.
  */
 export async function verificarTarjeta(serial) {

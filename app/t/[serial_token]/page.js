@@ -13,6 +13,17 @@ export default async function CardRedirectPage({ params }) {
     redirect('/activar');
   }
 
+  if (!supabase) {
+    return (
+      <div className="min-h-screen bg-black text-red-550 flex items-center justify-center p-6 text-center">
+        <div>
+          <h2 className="text-xl font-bold mb-2">Error de Configuración</h2>
+          <p className="text-sm text-neutral-400">El servidor de Supabase no está configurado. Por favor, verifica tus variables de entorno.</p>
+        </div>
+      </div>
+    );
+  }
+
   // 1. Consultar la tarjeta en Supabase
   const { data: tarjeta, error: tarjetaError } = await supabase
     .from('tarjetas')

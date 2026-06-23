@@ -371,7 +371,7 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
                 <input
                   type="text"
                   value={whatsapp}
-                  onChange={(e) => setwhatsapp(e.target.value)}
+                  onChange={(e) => setWhatsapp(e.target.value)}
                   placeholder="Número con código (ej: +51987654321)"
                   className="w-full bg-neutral-950/40 border border-neutral-850 focus:border-blue-500 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition"
                 />
