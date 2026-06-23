@@ -6,8 +6,12 @@ import { cookies } from 'next/headers';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
+const isUrlValid = (url) => {
+  return typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'));
+};
+
 // Inicializar el cliente Supabase del lado del servidor de forma condicional para evitar crashes durante 'next build'
-const supabaseServer = supabaseUrl && supabaseKey
+const supabaseServer = isUrlValid(supabaseUrl) && supabaseKey
   ? createClient(supabaseUrl, supabaseKey, {
       auth: {
         persistSession: false
