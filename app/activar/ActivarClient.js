@@ -147,7 +147,7 @@ export default function ActivarClient({ initialSerial }) {
         <img 
           src="/logo.jpg" 
           alt="NG Marketing Logo" 
-          className="w-14 h-14 object-contain mx-auto bg-white p-1 rounded-2xl border border-neutral-800 mb-4 shadow-lg"
+          className="w-14 h-14 object-contain mx-auto bg-neutral-950 rounded-2xl border border-neutral-800 mb-4 shadow-lg"
         />
         <h2 className="text-2xl font-bold text-white tracking-tight">Activa tu Tarjeta NFC</h2>
         <p className="text-neutral-400 text-sm mt-1">
@@ -314,7 +314,7 @@ export default function ActivarClient({ initialSerial }) {
               </label>
               <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-neutral-950/40 border border-neutral-850 rounded-2xl">
                 {/* Preview circular */}
-                <div className="w-16 h-16 rounded-full bg-white border border-neutral-800 overflow-hidden flex items-center justify-center p-1.5 flex-shrink-0">
+                <div className="w-16 h-16 rounded-full bg-neutral-950 border border-neutral-800 overflow-hidden flex items-center justify-center p-1.5 flex-shrink-0">
                   {logoPreview ? (
                     <img
                       src={logoPreview}

@@ -17,7 +17,7 @@ export default function Home() {
           <img 
             src="/logo.jpg" 
             alt="NG Marketing Logo" 
-            className="w-10 h-10 rounded-xl object-contain bg-white p-1 border border-neutral-800"
+            className="w-10 h-10 rounded-xl object-contain bg-neutral-950 border border-neutral-800"
           />
           <span className="font-bold text-white tracking-wider text-sm md:text-base">
             NFC PLATFORM
@@ -90,7 +90,7 @@ export default function Home() {
               <img 
                 src="/logo.jpg" 
                 alt="NG Logo" 
-                className="w-12 h-6 object-contain bg-white p-0.5 rounded border border-neutral-800"
+                className="w-12 h-6 object-contain bg-neutral-950 rounded border border-neutral-800"
               />
             </div>
             

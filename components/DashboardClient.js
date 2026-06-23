@@ -266,7 +266,7 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
           </label>
           <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-neutral-950/40 border border-neutral-850 rounded-2xl">
             {/* Preview circular */}
-            <div className="w-20 h-20 rounded-full bg-white border border-neutral-800 overflow-hidden flex items-center justify-center p-1.5 flex-shrink-0">
+            <div className="w-20 h-20 rounded-full bg-neutral-950 border border-neutral-800 overflow-hidden flex items-center justify-center p-1.5 flex-shrink-0">
               {logoPreview ? (
                 <img
                   src={logoPreview}

@@ -42,7 +42,7 @@ export default function LoginClient() {
         <img 
           src="/logo.jpg" 
           alt="NG Marketing Logo" 
-          className="w-14 h-14 object-contain mx-auto bg-white p-1 rounded-2xl border border-neutral-800 mb-4 shadow-lg"
+          className="w-14 h-14 object-contain mx-auto bg-neutral-950 rounded-2xl border border-neutral-800 mb-4 shadow-lg"
         />
         <h2 className="text-2xl font-bold text-white tracking-tight">Acceso al Dashboard</h2>
         <p className="text-neutral-400 text-sm mt-1">

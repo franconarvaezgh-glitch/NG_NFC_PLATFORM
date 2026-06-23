@@ -96,7 +96,7 @@ export default function ProfileCard({ profile, serialToken }) {
       <div className="flex flex-col items-center text-center mt-4">
         <div className="relative group">
           <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-tilt" />
-          <div className="relative w-24 h-24 rounded-full bg-white border border-neutral-800 overflow-hidden flex items-center justify-center p-1">
+          <div className="relative w-24 h-24 rounded-full bg-neutral-950 border border-neutral-800 overflow-hidden flex items-center justify-center p-1">
             <img
               src={logoSrc}
               alt={`Logo de ${profile.nombre}`}
