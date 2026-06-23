@@ -193,39 +193,86 @@ export async function activarTarjeta(formData) {
       }
     } else {
       // --- REGISTRO NUEVO ---
-      const { data: adminUser, error: adminError } = await getSupabaseServer().auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          nombre,
-          cargo,
-          empresa,
-          telefono,
-          redes
-        }
-      });
+      let registeredViaAdmin = false;
 
-      if (adminError) {
-        if (adminError.message?.toLowerCase().includes('already') || adminError.status === 422) {
-          const confirmed = await autoConfirmarUsuarioSiExiste(email);
-          if (!confirmed) {
-             throw new Error('El correo electrónico ingresado ya está registrado.');
+      try {
+        // Intentar crear usuario mediante API de Admin (para auto-confirmar el correo)
+        const { data: adminUser, error: adminError } = await getSupabaseServer().auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: {
+            nombre,
+            cargo,
+            empresa,
+            telefono,
+            redes
           }
+        });
+
+        if (adminError) throw adminError;
+        
+        userId = adminUser.user.id;
+        registeredViaAdmin = true;
+      } catch (err) {
+        const errMsg = err.message || '';
+        // Si el error es por falta de permisos (User not allowed / anon key) o similar, usar signUp estándar
+        if (
+          errMsg.toLowerCase().includes('not allowed') || 
+          errMsg.toLowerCase().includes('authorized') || 
+          err.status === 401 || 
+          err.status === 403 || 
+          err.status === 400
+        ) {
+          console.log('API de Admin no autorizada o no disponible (posible uso de anon key). Usando signUp estándar...');
+          
+          const { data: signUpData, error: signUpError } = await getSupabaseServer().auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                nombre,
+                cargo,
+                empresa,
+                telefono,
+                redes
+              }
+            }
+          });
+
+          if (signUpError) {
+            if (signUpError.message?.toLowerCase().includes('already') || signUpError.status === 422) {
+              throw new Error('El correo electrónico ingresado ya está registrado.');
+            }
+            throw signUpError;
+          }
+
+          userId = signUpData.user.id;
+          session = signUpData.session;
         } else {
-          throw adminError;
+          // Si el error es de registro duplicado u otro error real
+          if (errMsg.toLowerCase().includes('already') || err.status === 422) {
+            const confirmed = await autoConfirmarUsuarioSiExiste(email);
+            if (!confirmed) {
+              throw new Error('El correo electrónico ingresado ya está registrado.');
+            }
+          } else {
+            throw err;
+          }
         }
       }
 
-      // Login para iniciar sesión
-      const { data: authData, error: authError } = await getSupabaseServer().auth.signInWithPassword({
-        email,
-        password
-      });
+      // Si nos registramos vía Admin, necesitamos iniciar sesión para obtener la sesión/token
+      if (registeredViaAdmin && !session) {
+        const { data: authData, error: authError } = await getSupabaseServer().auth.signInWithPassword({
+          email,
+          password
+        });
 
-      if (authError) throw authError;
-      userId = authData.user.id;
-      session = authData.session;
+        if (authError) throw authError;
+        userId = authData.user.id;
+        session = authData.session;
+      }
     }
 
     // --- PROCESAR CARGA DE ARCHIVO (LOGO) EN REGISTRO ---
