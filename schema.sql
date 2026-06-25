@@ -41,7 +41,9 @@ create policy "Usuarios pueden actualizar su propio perfil" on public.perfiles
 
 -- Políticas de actualización de tarjetas
 create policy "Usuarios pueden enlazar su propia tarjeta" on public.tarjetas
-  for update using (auth.uid() = usuario_id);
+  for update 
+  using (usuario_id is null or auth.uid() = usuario_id)
+  with check (auth.uid() = usuario_id);
 
 -- Trigger para crear un perfil automáticamente al registrarse en Auth
 create or replace function public.handle_new_user()

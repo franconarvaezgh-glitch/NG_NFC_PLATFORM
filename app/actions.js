@@ -32,6 +32,25 @@ function getSupabaseServer() {
   return supabaseServerInstance;
 }
 
+function getSupabaseUserClient(accessToken) {
+  const url = getEnv('NEXT_PUBLIC_SUPABASE_URL');
+  const key = getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  
+  if (isUrlValid(url) && key && accessToken) {
+    return createClient(url, key, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      },
+      auth: {
+        persistSession: false
+      }
+    });
+  }
+  return getSupabaseServer();
+}
+
 /**
  * Asegura que el bucket 'logos' exista en Supabase Storage y sea público.
  */
@@ -268,12 +287,12 @@ export async function activarTarjeta(formData) {
           email,
           password
         });
-
         if (authError) throw authError;
         userId = authData.user.id;
         session = authData.session;
       }
     }
+    const userClient = session ? getSupabaseUserClient(session.access_token) : getSupabaseServer();
 
     // --- PROCESAR CARGA DE ARCHIVO (LOGO) EN REGISTRO ---
     if (file && file.size > 0) {
@@ -284,7 +303,7 @@ export async function activarTarjeta(formData) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${userId}-${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await getSupabaseServer().storage
+      const { error: uploadError } = await userClient.storage
         .from('logos')
         .upload(fileName, buffer, {
           contentType: file.type,
@@ -293,21 +312,21 @@ export async function activarTarjeta(formData) {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = getSupabaseServer().storage
+      const { data: { publicUrl } } = userClient.storage
         .from('logos')
         .getPublicUrl(fileName);
 
       logoUrl = publicUrl;
 
       // Actualizar el perfil recién creado con la URL del logo
-      await getSupabaseServer()
+      await userClient
         .from('perfiles')
         .update({ logo_url: logoUrl })
         .eq('id', userId);
     }
 
     // 2. Vincular la tarjeta al usuario
-    const { error: updateError } = await getSupabaseServer()
+    const { error: updateError } = await userClient
       .from('tarjetas')
       .update({ usuario_id: userId })
       .eq('serial_token', serial);
@@ -402,6 +421,8 @@ export async function actualizarPerfilAutenticado(accessToken, formData) {
 
     const redes = redesRaw ? JSON.parse(redesRaw) : {};
 
+    const userClient = getSupabaseUserClient(accessToken);
+
     // --- PROCESAR CARGA DE ARCHIVO (LOGO) EN ACTUALIZACIÓN ---
     if (file && file.size > 0) {
       await asegurarBucketLogos();
@@ -411,7 +432,7 @@ export async function actualizarPerfilAutenticado(accessToken, formData) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await getSupabaseServer().storage
+      const { error: uploadError } = await userClient.storage
         .from('logos')
         .upload(fileName, buffer, {
           contentType: file.type,
@@ -421,14 +442,14 @@ export async function actualizarPerfilAutenticado(accessToken, formData) {
       if (uploadError) throw uploadError;
 
       // Obtener la URL pública del archivo cargado
-      const { data: { publicUrl } } = getSupabaseServer().storage
+      const { data: { publicUrl } } = userClient.storage
         .from('logos')
         .getPublicUrl(fileName);
       
       logoUrl = publicUrl;
     }
 
-    const { error: dbError } = await getSupabaseServer()
+    const { error: dbError } = await userClient
       .from('perfiles')
       .update({
         nombre,
