@@ -20,7 +20,8 @@ function getSupabaseServer() {
   if (supabaseServerInstance) return supabaseServerInstance;
 
   const url = getEnv('NEXT_PUBLIC_SUPABASE_URL');
-  const key = getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  // Usar la clave de servicio (service_role) en el servidor si está configurada, de lo contrario usar la anon key
+  const key = getEnv('SUPABASE_SERVICE_ROLE_KEY') || getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
 
   if (isUrlValid(url) && key) {
     supabaseServerInstance = createClient(url, key, {
@@ -326,12 +327,17 @@ export async function activarTarjeta(formData) {
     }
 
     // 2. Vincular la tarjeta al usuario
-    const { error: updateError } = await userClient
+    const { data: updateData, error: updateError } = await userClient
       .from('tarjetas')
       .update({ usuario_id: userId })
-      .eq('serial_token', serial);
+      .eq('serial_token', serial)
+      .select();
 
     if (updateError) throw updateError;
+
+    if (!updateData || updateData.length === 0) {
+      throw new Error('No se pudo vincular la tarjeta. Es posible que ya esté vinculada o no tengas permisos.');
+    }
 
     // 3. Cookie de sesión
     if (session) {
