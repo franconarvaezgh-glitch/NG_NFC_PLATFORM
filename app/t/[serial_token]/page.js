@@ -58,7 +58,7 @@ export default async function CardRedirectPage({ params }) {
       </main>
       
       {/* Footer minimalista */}
-      <footer className="py-6 text-center text-xs text-neutral-500 border-t border-neutral-900/50 bg-black/40 backdrop-blur-md">
+      <footer className="py-6 text-center text-xs text-neutral-500 border-t border-neutral-900/50 bg-black/40 backdrop-blur-md flex flex-col items-center gap-1.5">
         <p>
           Tarjeta Digital Autogestionable • Potenciado por{' '}
           <a
@@ -70,6 +70,12 @@ export default async function CardRedirectPage({ params }) {
             NG Marketing BTL
           </a>
         </p>
+        <a 
+          href="/dashboard"
+          className="text-[10px] text-neutral-600 hover:text-blue-400 hover:underline transition"
+        >
+          ¿Eres el dueño? Inicia sesión para editar tus datos
+        </a>
       </footer>
     </div>
   );

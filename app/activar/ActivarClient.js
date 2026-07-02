@@ -126,13 +126,22 @@ export default function ActivarClient({ initialSerial }) {
           Tu tarjeta física NFC ahora está enlazada con tu perfil digital ejecutivo. Puedes editar tus datos o compartirlos en cualquier momento.
         </p>
         
-        <button
-          onClick={() => router.push(`/t/${encodeURIComponent(serial)}`)}
-          className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/20 active:scale-98 transition duration-200 cursor-pointer"
-        >
-          <span>Ver mi Tarjeta Digital</span>
-          <ArrowRight className="w-5 h-5" />
-        </button>
+        <div className="w-full space-y-3">
+          <button
+            onClick={() => router.push(`/t/${encodeURIComponent(serial)}`)}
+            className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/20 active:scale-98 transition duration-200 cursor-pointer"
+          >
+            <span>Ver mi Tarjeta Digital</span>
+            <ArrowRight className="w-5 h-5" />
+          </button>
+          
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="w-full py-3.5 px-6 bg-neutral-950 hover:bg-neutral-900 border border-neutral-850 hover:border-neutral-800 text-neutral-350 hover:text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition duration-200 cursor-pointer"
+          >
+            <span>Gestionar mi Perfil</span>
+          </button>
+        </div>
       </div>
     );
   }

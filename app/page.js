@@ -24,15 +24,23 @@ export default function Home() {
           </span>
         </div>
         
-        <a
-          href="https://ngmarketingbtl.netlify.app/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs md:text-sm text-neutral-400 hover:text-blue-400 flex items-center gap-1.5 transition duration-200"
-        >
-          <span>Agencia BTL</span>
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/dashboard"
+            className="text-xs md:text-sm text-neutral-400 hover:text-blue-400 bg-neutral-950 border border-neutral-850 hover:bg-neutral-900 rounded-xl px-3 py-1.5 transition duration-200"
+          >
+            Editar Perfil
+          </Link>
+          <a
+            href="https://ngmarketingbtl.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs md:text-sm text-neutral-400 hover:text-blue-400 flex items-center gap-1.5 transition duration-200"
+          >
+            <span>Agencia BTL</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
       </header>
 
       {/* Hero Section */}
@@ -74,6 +82,13 @@ export default function Home() {
               <span>Conoce nuestra Agencia</span>
             </a>
           </div>
+
+          <p className="text-xs text-neutral-500 text-center md:text-left pt-1">
+            ¿Ya tienes una cuenta?{' '}
+            <Link href="/dashboard" className="text-blue-500 hover:underline">
+              Gestiona tu perfil digital aquí
+            </Link>
+          </p>
         </div>
 
         {/* Lado Derecho: Simulación de Tarjeta / Mockup Visual */}
