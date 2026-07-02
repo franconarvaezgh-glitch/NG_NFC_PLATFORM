@@ -399,6 +399,31 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
           )}
         </button>
       </form>
+
+      {/* Toast de Éxito Flotante */}
+      {success && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 py-3.5 px-6 bg-neutral-950/90 backdrop-blur-xl border border-emerald-500/30 rounded-2xl flex items-center gap-3 text-emerald-400 text-sm shadow-2xl shadow-emerald-950/20 animate-slide-up">
+          <CheckCircle className="w-5 h-5 text-emerald-550 flex-shrink-0 animate-bounce" />
+          <span className="font-semibold text-white">¡Perfil actualizado con éxito!</span>
+        </div>
+      )}
+
+      {/* Animación Spring Slide-Up */}
+      <style jsx global>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translate(-50%, 20px);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+          }
+        }
+        .animate-slide-up {
+          animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+      `}</style>
     </div>
   );
 }
