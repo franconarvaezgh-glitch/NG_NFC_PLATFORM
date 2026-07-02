@@ -327,7 +327,7 @@ export async function activarTarjeta(formData) {
     }
 
     // 2. Vincular la tarjeta al usuario
-    const { data: updateData, error: updateError } = await userClient
+    const { data: updateData, error: updateError } = await getSupabaseServer()
       .from('tarjetas')
       .update({ usuario_id: userId })
       .eq('serial_token', serial)
