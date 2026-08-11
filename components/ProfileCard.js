@@ -42,6 +42,20 @@ const Tiktok = (props) => (
   </svg>
 );
 
+const Facebook = (props) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={props.className}
+  >
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
 export default function ProfileCard({ profile, serialToken }) {
   const [copied, setCopied] = useState(false);
 
@@ -107,6 +121,12 @@ export default function ProfileCard({ profile, serialToken }) {
       icon: <Tiktok className="w-5 h-5" />,
       label: 'TikTok',
       color: 'hover:bg-cyan-600/20 hover:text-cyan-400 hover:border-cyan-500/30'
+    },
+    {
+      key: 'facebook',
+      icon: <Facebook className="w-5 h-5" />,
+      label: 'Facebook',
+      color: 'hover:bg-blue-600/20 hover:text-blue-450 hover:border-blue-500/30'
     },
     {
       key: 'website',
@@ -223,6 +243,13 @@ export default function ProfileCard({ profile, serialToken }) {
               } else {
                 const cleanUser = val.startsWith('@') ? val.slice(1) : val;
                 href = `https://www.tiktok.com/@${cleanUser}`;
+              }
+            } else if (net.key === 'facebook') {
+              if (/^https?:\/\//i.test(val)) {
+                href = val;
+              } else {
+                const cleanUser = val.startsWith('@') ? val.slice(1) : val;
+                href = `https://www.facebook.com/${cleanUser}`;
               }
             } else if (!/^https?:\/\//i.test(val)) href = `https://${val}`;
 

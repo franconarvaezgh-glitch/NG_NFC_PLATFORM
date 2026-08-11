@@ -36,6 +36,20 @@ const Tiktok = (props) => (
   </svg>
 );
 
+const Facebook = (props) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={props.className}
+  >
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
 export default function ActivarClient({ initialSerial }) {
   const router = useRouter();
 
@@ -64,6 +78,7 @@ export default function ActivarClient({ initialSerial }) {
   const [website, setWebsite] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [tiktok, setTiktok] = useState('');
+  const [facebook, setFacebook] = useState('');
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -101,6 +116,18 @@ export default function ActivarClient({ initialSerial }) {
       }
     }
 
+    // Validación de Facebook
+    if (!isLoginMode && facebook) {
+      const cleanFacebook = facebook.trim();
+      const usernameOnly = cleanFacebook.startsWith('@') ? cleanFacebook.slice(1) : cleanFacebook;
+      const facebookRegex = /^[a-zA-Z0-9.]{5,50}$/;
+      if (!facebookRegex.test(usernameOnly)) {
+        setError('El usuario de Facebook no es válido. Debe tener al menos 5 caracteres y solo contener letras, números y puntos.');
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const redesJson = {
         instagram: instagram || undefined,
@@ -108,7 +135,8 @@ export default function ActivarClient({ initialSerial }) {
         website: website || undefined,
         email: email || undefined,
         whatsapp: whatsapp || undefined,
-        tiktok: tiktok || undefined
+        tiktok: tiktok || undefined,
+        facebook: facebook || undefined
       };
 
       const formData = new FormData();
@@ -421,6 +449,22 @@ export default function ActivarClient({ initialSerial }) {
                     value={tiktok}
                     onChange={(e) => setTiktok(e.target.value)}
                     placeholder="Ej. @juan.nfc"
+                    className="w-full bg-neutral-950/40 border border-neutral-850 focus:border-blue-500 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-neutral-400 mb-2">Usuario de Facebook</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-neutral-500">
+                    <Facebook className="w-4 h-4 text-blue-500" />
+                  </span>
+                  <input
+                    type="text"
+                    value={facebook}
+                    onChange={(e) => setFacebook(e.target.value)}
+                    placeholder="Ej. juan.perez"
                     className="w-full bg-neutral-950/40 border border-neutral-850 focus:border-blue-500 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition"
                   />
                 </div>
