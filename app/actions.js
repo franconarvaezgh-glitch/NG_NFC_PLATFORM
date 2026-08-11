@@ -33,21 +33,22 @@ function getSupabaseServer() {
   return supabaseServerInstance;
 }
 
-function getSupabaseUserClient(accessToken) {
+async function getSupabaseUserClient(accessToken) {
   const url = getEnv('NEXT_PUBLIC_SUPABASE_URL');
   const key = getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
   
   if (isUrlValid(url) && key && accessToken) {
-    return createClient(url, key, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      },
+    const client = createClient(url, key, {
       auth: {
-        persistSession: false
+        persistSession: false,
+        autoRefreshToken: false
       }
     });
+    await client.auth.setSession({
+      access_token: accessToken,
+      refresh_token: ''
+    });
+    return client;
   }
   return getSupabaseServer();
 }
@@ -293,7 +294,7 @@ export async function activarTarjeta(formData) {
         session = authData.session;
       }
     }
-    const userClient = session ? getSupabaseUserClient(session.access_token) : getSupabaseServer();
+    const userClient = session ? await getSupabaseUserClient(session.access_token) : getSupabaseServer();
 
     // --- PROCESAR CARGA DE ARCHIVO (LOGO) EN REGISTRO ---
     if (file && file.size > 0) {
@@ -427,7 +428,7 @@ export async function actualizarPerfilAutenticado(accessToken, formData) {
 
     const redes = redesRaw ? JSON.parse(redesRaw) : {};
 
-    const userClient = getSupabaseUserClient(accessToken);
+    const userClient = await getSupabaseUserClient(accessToken);
 
     // --- PROCESAR CARGA DE ARCHIVO (LOGO) EN ACTUALIZACIÓN ---
     if (file && file.size > 0) {
