@@ -56,6 +56,46 @@ const Facebook = (props) => (
   </svg>
 );
 
+const SOCIAL_BASE_URLS = {
+  tiktok: 'https://www.tiktok.com/@',
+  instagram: 'https://www.instagram.com/',
+  facebook: 'https://www.facebook.com/',
+  linkedin: 'https://www.linkedin.com/in/',
+  whatsapp: 'https://wa.me/',
+};
+
+export function getSocialUrl(key, val) {
+  if (!val) return '';
+  if (key === 'email') return `mailto:${val}`;
+  if (/^https?:\/\//i.test(val)) return val;
+  
+  let cleanVal = val.trim();
+  
+  if (key === 'whatsapp') {
+    cleanVal = cleanVal.replace(/[^0-9]/g, '');
+    return `${SOCIAL_BASE_URLS.whatsapp}${cleanVal}`;
+  }
+  
+  if (key === 'tiktok' || key === 'instagram') {
+    if (cleanVal.startsWith('@')) {
+      cleanVal = cleanVal.slice(1);
+    }
+  }
+  
+  if (key === 'linkedin') {
+    if (cleanVal.startsWith('in/')) {
+      cleanVal = cleanVal.slice(3);
+    }
+  }
+  
+  const baseUrl = SOCIAL_BASE_URLS[key];
+  if (baseUrl) {
+    return `${baseUrl}${cleanVal}`;
+  }
+  
+  return `https://${cleanVal}`;
+}
+
 export default function ProfileCard({ profile, serialToken }) {
   const [copied, setCopied] = useState(false);
 
@@ -234,24 +274,7 @@ export default function ProfileCard({ profile, serialToken }) {
             const val = profile.redes?.[net.key];
             if (!val) return null;
 
-            let href = val;
-            if (net.key === 'email') href = `mailto:${val}`;
-            else if (net.key === 'whatsapp') href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
-            else if (net.key === 'tiktok') {
-              if (/^https?:\/\//i.test(val)) {
-                href = val;
-              } else {
-                const cleanUser = val.startsWith('@') ? val.slice(1) : val;
-                href = `https://www.tiktok.com/@${cleanUser}`;
-              }
-            } else if (net.key === 'facebook') {
-              if (/^https?:\/\//i.test(val)) {
-                href = val;
-              } else {
-                const cleanUser = val.startsWith('@') ? val.slice(1) : val;
-                href = `https://www.facebook.com/${cleanUser}`;
-              }
-            } else if (!/^https?:\/\//i.test(val)) href = `https://${val}`;
+            const href = getSocialUrl(net.key, val);
 
             return (
               <a

@@ -50,6 +50,50 @@ const Facebook = (props) => (
   </svg>
 );
 
+const sanitizeSocialInput = (key, val) => {
+  if (!val) return '';
+  let cleanVal = val.trim();
+  if (key === 'email' || key === 'website') return cleanVal;
+  
+  if (key === 'whatsapp') {
+    return cleanVal.replace(/[^0-9]/g, '');
+  }
+  
+  if (/^https?:\/\//i.test(cleanVal)) {
+    try {
+      const url = new URL(cleanVal);
+      const pathname = url.pathname;
+      const pathSegments = pathname.split('/').filter(Boolean);
+      
+      if (key === 'tiktok') {
+        if (pathSegments[0] && pathSegments[0].startsWith('@')) {
+          cleanVal = pathSegments[0].slice(1);
+        } else {
+          cleanVal = pathSegments[0] || '';
+        }
+      } else if (key === 'instagram' || key === 'facebook') {
+        cleanVal = pathSegments[0] || '';
+      } else if (key === 'linkedin') {
+        if (pathSegments[0] === 'in') {
+          cleanVal = pathSegments[1] || '';
+        } else {
+          cleanVal = pathSegments[0] || '';
+        }
+      }
+    } catch (e) {
+      // Ignorar error de parsing
+    }
+  }
+  
+  if (key === 'tiktok' || key === 'instagram') {
+    if (cleanVal.startsWith('@')) {
+      cleanVal = cleanVal.slice(1);
+    }
+  }
+  
+  return cleanVal;
+};
+
 export default function DashboardClient({ profile, serialToken, email, token }) {
   const router = useRouter();
 
@@ -96,12 +140,23 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
     setSuccess(false);
     setLoading(true);
 
+    const cleanInstagram = sanitizeSocialInput('instagram', instagram);
+    const cleanTiktok = sanitizeSocialInput('tiktok', tiktok);
+    const cleanFacebook = sanitizeSocialInput('facebook', facebook);
+    const cleanLinkedin = sanitizeSocialInput('linkedin', linkedin);
+    const cleanWhatsapp = sanitizeSocialInput('whatsapp', whatsapp);
+
+    // Actualizar estados locales para que se muestren limpios
+    setInstagram(cleanInstagram);
+    setTiktok(cleanTiktok);
+    setFacebook(cleanFacebook);
+    setLinkedin(cleanLinkedin);
+    setWhatsapp(cleanWhatsapp);
+
     // Validación de TikTok
-    if (tiktok) {
-      const cleanTikTok = tiktok.trim();
-      const usernameOnly = cleanTikTok.startsWith('@') ? cleanTikTok.slice(1) : cleanTikTok;
+    if (cleanTiktok) {
       const tiktokRegex = /^[a-zA-Z0-9._]{2,24}$/;
-      if (!tiktokRegex.test(usernameOnly) || usernameOnly.endsWith('.')) {
+      if (!tiktokRegex.test(cleanTiktok) || cleanTiktok.endsWith('.')) {
         setError('El usuario de TikTok no es válido. Debe tener entre 2 y 24 caracteres, y contener solo letras, números, puntos y guiones bajos (sin terminar en punto).');
         setLoading(false);
         return;
@@ -109,11 +164,9 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
     }
 
     // Validación de Facebook
-    if (facebook) {
-      const cleanFacebook = facebook.trim();
-      const usernameOnly = cleanFacebook.startsWith('@') ? cleanFacebook.slice(1) : cleanFacebook;
+    if (cleanFacebook) {
       const facebookRegex = /^[a-zA-Z0-9.]{5,50}$/;
-      if (!facebookRegex.test(usernameOnly)) {
+      if (!facebookRegex.test(cleanFacebook)) {
         setError('El usuario de Facebook no es válido. Debe tener al menos 5 caracteres y solo contener letras, números y puntos.');
         setLoading(false);
         return;
@@ -122,13 +175,13 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
 
     try {
       const redesJson = {
-        instagram: instagram || undefined,
-        linkedin: linkedin || undefined,
+        instagram: cleanInstagram || undefined,
+        linkedin: cleanLinkedin || undefined,
         website: website || undefined,
         email: email || undefined,
-        whatsapp: whatsapp || undefined,
-        tiktok: tiktok || undefined,
-        facebook: facebook || undefined
+        whatsapp: cleanWhatsapp || undefined,
+        tiktok: cleanTiktok || undefined,
+        facebook: cleanFacebook || undefined
       };
 
       const formData = new FormData();
