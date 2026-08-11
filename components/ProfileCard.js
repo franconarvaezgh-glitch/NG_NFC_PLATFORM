@@ -107,7 +107,7 @@ export default function ProfileCard({ profile, serialToken }) {
     }
   };
 
-  const handleDownloadVCF = () => {
+  const handleDownloadVCF = async () => {
     // Dividir el nombre para separar el Primer Nombre de los Apellidos correctamente
     const nameParts = profile.nombre.trim().split(/\s+/);
     let lastName = '';
@@ -120,6 +120,34 @@ export default function ProfileCard({ profile, serialToken }) {
     } else if (nameParts.length >= 3) {
       firstName = nameParts[0];
       lastName = nameParts.slice(1).join(' ');
+    }
+
+    let photoLine = '';
+    if (profile.logo_url) {
+      try {
+        const response = await fetch(profile.logo_url);
+        const blob = await response.blob();
+        const base64Data = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        let imgType = 'JPEG';
+        if (profile.logo_url.toLowerCase().endsWith('.png')) {
+          imgType = 'PNG';
+        } else if (profile.logo_url.toLowerCase().endsWith('.webp')) {
+          imgType = 'WEBP';
+        }
+
+        photoLine = `PHOTO;ENCODING=b;TYPE=${imgType}:${base64Data}`;
+      } catch (err) {
+        console.error('Error al procesar foto para vCard:', err);
+      }
     }
 
     const vcardLines = [
@@ -138,6 +166,7 @@ export default function ProfileCard({ profile, serialToken }) {
       profile.redes?.tiktok ? `X-SOCIALPROFILE;type=tiktok:${getSocialUrl('tiktok', profile.redes.tiktok)}` : '',
       profile.redes?.facebook ? `X-SOCIALPROFILE;type=facebook:${getSocialUrl('facebook', profile.redes.facebook)}` : '',
       profile.redes?.whatsapp ? `X-SOCIALPROFILE;type=whatsapp:${getSocialUrl('whatsapp', profile.redes.whatsapp)}` : '',
+      photoLine,
       'END:VCARD'
     ];
 
