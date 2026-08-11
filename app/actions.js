@@ -232,6 +232,9 @@ export async function activarTarjeta(formData) {
         });
 
         if (adminError) throw adminError;
+        if (!adminUser || !adminUser.user) {
+          throw new Error('No se pudo crear el usuario. Por favor, intenta de nuevo.');
+        }
         
         userId = adminUser.user.id;
         registeredViaAdmin = true;
@@ -266,6 +269,10 @@ export async function activarTarjeta(formData) {
               throw new Error('El correo electrónico ingresado ya está registrado.');
             }
             throw signUpError;
+          }
+
+          if (!signUpData || !signUpData.user) {
+            throw new Error('No se pudo crear el usuario. Por favor, verifica tus datos.');
           }
 
           userId = signUpData.user.id;
