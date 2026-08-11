@@ -161,15 +161,10 @@ export default function ProfileCard({ profile, serialToken }) {
       profile.redes?.email ? `EMAIL;TYPE=PREF,INTERNET:${profile.redes.email}` : '',
       profile.redes?.website ? `URL:${getSocialUrl('website', profile.redes.website)}` : '',
       profile.redes?.linkedin ? `URL;type=linkedin:${getSocialUrl('linkedin', profile.redes.linkedin)}` : '',
-      profile.redes?.linkedin ? `X-SOCIALPROFILE;type=linkedin:${getSocialUrl('linkedin', profile.redes.linkedin)}` : '',
       profile.redes?.instagram ? `URL;type=instagram:${getSocialUrl('instagram', profile.redes.instagram)}` : '',
-      profile.redes?.instagram ? `X-SOCIALPROFILE;type=instagram:${getSocialUrl('instagram', profile.redes.instagram)}` : '',
       profile.redes?.tiktok ? `URL;type=tiktok:${getSocialUrl('tiktok', profile.redes.tiktok)}` : '',
-      profile.redes?.tiktok ? `X-SOCIALPROFILE;type=tiktok:${getSocialUrl('tiktok', profile.redes.tiktok)}` : '',
       profile.redes?.facebook ? `URL;type=facebook:${getSocialUrl('facebook', profile.redes.facebook)}` : '',
-      profile.redes?.facebook ? `X-SOCIALPROFILE;type=facebook:${getSocialUrl('facebook', profile.redes.facebook)}` : '',
       profile.redes?.whatsapp ? `URL;type=whatsapp:${getSocialUrl('whatsapp', profile.redes.whatsapp)}` : '',
-      profile.redes?.whatsapp ? `X-SOCIALPROFILE;type=whatsapp:${getSocialUrl('whatsapp', profile.redes.whatsapp)}` : '',
       photoLine,
       'END:VCARD'
     ];
