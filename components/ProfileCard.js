@@ -108,17 +108,36 @@ export default function ProfileCard({ profile, serialToken }) {
   };
 
   const handleDownloadVCF = () => {
+    // Dividir el nombre para separar el Primer Nombre de los Apellidos correctamente
+    const nameParts = profile.nombre.trim().split(/\s+/);
+    let lastName = '';
+    let firstName = '';
+    if (nameParts.length === 1) {
+      firstName = nameParts[0];
+    } else if (nameParts.length === 2) {
+      firstName = nameParts[0];
+      lastName = nameParts[1];
+    } else if (nameParts.length >= 3) {
+      firstName = nameParts[0];
+      lastName = nameParts.slice(1).join(' ');
+    }
+
     const vcardLines = [
       'BEGIN:VCARD',
       'VERSION:3.0',
       `FN:${profile.nombre}`,
-      `N:${profile.nombre.split(' ').reverse().join(';')};;;`,
+      `N:${lastName};${firstName};;;`,
       profile.empresa ? `ORG:${profile.empresa}` : '',
       profile.cargo ? `TITLE:${profile.cargo}` : '',
       profile.telefono ? `TEL;TYPE=CELL,VOICE:${profile.telefono}` : '',
       profile.redes?.email ? `EMAIL;TYPE=PREF,INTERNET:${profile.redes.email}` : '',
-      profile.redes?.website ? `URL:${profile.redes.website}` : '',
-      profile.redes?.linkedin ? `URL;type=linkedin:${profile.redes.linkedin}` : '',
+      profile.redes?.website ? `URL:${getSocialUrl('website', profile.redes.website)}` : '',
+      profile.redes?.linkedin ? `URL;type=linkedin:${getSocialUrl('linkedin', profile.redes.linkedin)}` : '',
+      profile.redes?.linkedin ? `X-SOCIALPROFILE;type=linkedin:${getSocialUrl('linkedin', profile.redes.linkedin)}` : '',
+      profile.redes?.instagram ? `X-SOCIALPROFILE;type=instagram:${getSocialUrl('instagram', profile.redes.instagram)}` : '',
+      profile.redes?.tiktok ? `X-SOCIALPROFILE;type=tiktok:${getSocialUrl('tiktok', profile.redes.tiktok)}` : '',
+      profile.redes?.facebook ? `X-SOCIALPROFILE;type=facebook:${getSocialUrl('facebook', profile.redes.facebook)}` : '',
+      profile.redes?.whatsapp ? `X-SOCIALPROFILE;type=whatsapp:${getSocialUrl('whatsapp', profile.redes.whatsapp)}` : '',
       'END:VCARD'
     ];
 
