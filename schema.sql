@@ -67,3 +67,17 @@ $$ language plpgsql security definer;
 create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Políticas de RLS para el almacenamiento (Supabase Storage - bucket 'logos')
+-- Permite que los usuarios (tanto anónimos como autenticados) puedan subir y ver logotipos
+create policy "Permitir subidas públicas en logos" on storage.objects
+  for insert
+  with check (bucket_id = 'logos');
+
+create policy "Permitir lectura pública en logos" on storage.objects
+  for select
+  using (bucket_id = 'logos');
+
+create policy "Permitir actualizaciones en logos" on storage.objects
+  for update
+  using (bucket_id = 'logos');
