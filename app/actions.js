@@ -10,27 +10,24 @@ const isUrlValid = (url) => {
   return typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'));
 };
 
-let supabaseServerInstance = null;
-
 const getEnv = (key) => {
   return typeof process !== 'undefined' ? process.env[key] || '' : '';
 };
 
 function getSupabaseServer() {
-  if (supabaseServerInstance) return supabaseServerInstance;
-
   const url = getEnv('NEXT_PUBLIC_SUPABASE_URL');
   // Usar la clave de servicio (service_role) en el servidor si está configurada, de lo contrario usar la anon key
   const key = getEnv('SUPABASE_SERVICE_ROLE_KEY') || getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
 
   if (isUrlValid(url) && key) {
-    supabaseServerInstance = createClient(url, key, {
+    return createClient(url, key, {
       auth: {
-        persistSession: false
+        persistSession: false,
+        autoRefreshToken: false
       }
     });
   }
-  return supabaseServerInstance;
+  return null;
 }
 
 async function getSupabaseUserClient(accessToken) {
