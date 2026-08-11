@@ -28,6 +28,20 @@ const WhatsAppIcon = (props) => (
   </svg>
 );
 
+const Tiktok = (props) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={props.className}
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
+
 export default function ProfileCard({ profile, serialToken }) {
   const [copied, setCopied] = useState(false);
 
@@ -87,6 +101,12 @@ export default function ProfileCard({ profile, serialToken }) {
       icon: <Instagram className="w-5 h-5" />,
       label: 'Instagram',
       color: 'hover:bg-pink-600/20 hover:text-pink-400 hover:border-pink-500/30'
+    },
+    {
+      key: 'tiktok',
+      icon: <Tiktok className="w-5 h-5" />,
+      label: 'TikTok',
+      color: 'hover:bg-cyan-600/20 hover:text-cyan-400 hover:border-cyan-500/30'
     },
     {
       key: 'website',
@@ -197,7 +217,14 @@ export default function ProfileCard({ profile, serialToken }) {
             let href = val;
             if (net.key === 'email') href = `mailto:${val}`;
             else if (net.key === 'whatsapp') href = `https://wa.me/${val.replace(/[^0-9]/g, '')}`;
-            else if (!/^https?:\/\//i.test(val)) href = `https://${val}`;
+            else if (net.key === 'tiktok') {
+              if (/^https?:\/\//i.test(val)) {
+                href = val;
+              } else {
+                const cleanUser = val.startsWith('@') ? val.slice(1) : val;
+                href = `https://www.tiktok.com/@${cleanUser}`;
+              }
+            } else if (!/^https?:\/\//i.test(val)) href = `https://${val}`;
 
             return (
               <a

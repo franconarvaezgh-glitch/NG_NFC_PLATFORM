@@ -22,6 +22,20 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 
+const Tiktok = (props) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={props.className}
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
+
 export default function DashboardClient({ profile, serialToken, email, token }) {
   const router = useRouter();
 
@@ -41,6 +55,7 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
   const [linkedin, setLinkedin] = useState(profile.redes?.linkedin || '');
   const [website, setWebsite] = useState(profile.redes?.website || '');
   const [whatsapp, setWhatsapp] = useState(profile.redes?.whatsapp || '');
+  const [tiktok, setTiktok] = useState(profile.redes?.tiktok || '');
 
   // Estados de carga e interfaz
   const [loading, setLoading] = useState(false);
@@ -66,13 +81,26 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
     setSuccess(false);
     setLoading(true);
 
+    // Validación de TikTok
+    if (tiktok) {
+      const cleanTikTok = tiktok.trim();
+      const usernameOnly = cleanTikTok.startsWith('@') ? cleanTikTok.slice(1) : cleanTikTok;
+      const tiktokRegex = /^[a-zA-Z0-9._]{2,24}$/;
+      if (!tiktokRegex.test(usernameOnly) || usernameOnly.endsWith('.')) {
+        setError('El usuario de TikTok no es válido. Debe tener entre 2 y 24 caracteres, y contener solo letras, números, puntos y guiones bajos (sin terminar en punto).');
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const redesJson = {
         instagram: instagram || undefined,
         linkedin: linkedin || undefined,
         website: website || undefined,
         email: email || undefined,
-        whatsapp: whatsapp || undefined
+        whatsapp: whatsapp || undefined,
+        tiktok: tiktok || undefined
       };
 
       const formData = new FormData();
@@ -325,6 +353,22 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
                   value={instagram}
                   onChange={(e) => setInstagram(e.target.value)}
                   placeholder="Usuario de Instagram (ej: juan.nfc)"
+                  className="w-full bg-neutral-950/40 border border-neutral-850 focus:border-blue-500 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-neutral-400 mb-2">TikTok</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-neutral-500">
+                  <Tiktok className="w-4 h-4" />
+                </span>
+                <input
+                  type="text"
+                  value={tiktok}
+                  onChange={(e) => setTiktok(e.target.value)}
+                  placeholder="Usuario de TikTok (ej: @juan.nfc)"
                   className="w-full bg-neutral-950/40 border border-neutral-850 focus:border-blue-500 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition"
                 />
               </div>
