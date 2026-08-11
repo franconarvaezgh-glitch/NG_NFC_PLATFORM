@@ -36,6 +36,11 @@ async function getSupabaseUserClient(accessToken) {
   
   if (isUrlValid(url) && key && accessToken) {
     const client = createClient(url, key, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      },
       auth: {
         persistSession: false,
         autoRefreshToken: false
