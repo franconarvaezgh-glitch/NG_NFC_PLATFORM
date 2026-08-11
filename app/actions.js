@@ -303,6 +303,7 @@ export async function activarTarjeta(formData) {
         session = authData.session;
       }
     }
+    const userClient = session ? await getSupabaseUserClient(session.access_token) : getSupabaseServer();
 
     // --- PROCESAR CARGA DE ARCHIVO (LOGO) EN REGISTRO ---
     if (file && file.size > 0) {
@@ -313,7 +314,7 @@ export async function activarTarjeta(formData) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${userId}-${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await getSupabaseServer().storage
+      const { error: uploadError } = await userClient.storage
         .from('logos')
         .upload(fileName, buffer, {
           contentType: file.type,
@@ -322,21 +323,21 @@ export async function activarTarjeta(formData) {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = getSupabaseServer().storage
+      const { data: { publicUrl } } = userClient.storage
         .from('logos')
         .getPublicUrl(fileName);
 
       logoUrl = publicUrl;
 
       // Actualizar el perfil recién creado con la URL del logo
-      await getSupabaseServer()
+      await userClient
         .from('perfiles')
         .update({ logo_url: logoUrl })
         .eq('id', userId);
     }
 
     // 2. Vincular la tarjeta al usuario
-    const { data: updateData, error: updateError } = await getSupabaseServer()
+    const { data: updateData, error: updateError } = await userClient
       .from('tarjetas')
       .update({ usuario_id: userId })
       .eq('serial_token', serial)
