@@ -303,7 +303,7 @@ export async function activarTarjeta(formData) {
         session = authData.session;
       }
     }
-    const userClient = session ? await getSupabaseUserClient(session.access_token) : getSupabaseServer();
+    const userClient = getSupabaseServer();
 
     // --- PROCESAR CARGA DE ARCHIVO (LOGO) EN REGISTRO ---
     if (file && file.size > 0) {
@@ -437,7 +437,7 @@ export async function actualizarPerfilAutenticado(accessToken, formData) {
 
     const redes = redesRaw ? JSON.parse(redesRaw) : {};
 
-    const userClient = await getSupabaseUserClient(accessToken);
+    const userClient = getSupabaseServer();
 
     // --- PROCESAR CARGA DE ARCHIVO (LOGO) EN ACTUALIZACIÓN ---
     if (file && file.size > 0) {
