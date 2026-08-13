@@ -124,8 +124,8 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 3 * 1024 * 1024) {
-        setError('El archivo seleccionado supera el límite permitido de 3MB.');
+      if (file.size > 10 * 1024 * 1024) {
+        setError('El archivo seleccionado supera el límite permitido de 10MB.');
         return;
       }
       setError(null);
@@ -203,6 +203,11 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
         setError(result.error);
       } else {
         setSuccess(true);
+        if (result.logoUrl) {
+          setLogoUrl(result.logoUrl);
+          setLogoPreview(`${result.logoUrl}?t=${Date.now()}`);
+          setLogoFile(null);
+        }
         // Si el archivo fue subido, refrescar la página para actualizar el estado del perfil
         if (logoFile) {
           router.refresh();
@@ -211,7 +216,7 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
       }
     } catch (err) {
       console.error(err);
-      setError('Ocurrió un error inesperado al actualizar tus datos.');
+      setError(`Ocurrió un error inesperado al actualizar tus datos: ${err.message || 'Detalle no disponible.'}`);
     } finally {
       setLoading(false);
     }
@@ -408,7 +413,7 @@ export default function DashboardClient({ profile, serialToken, email, token }) 
                 <span>Subir Imagen / Logo</span>
               </label>
               <p className="text-[10px] text-neutral-500">
-                Soporta archivos PNG, JPG o WEBP. Tamaño máximo recomendado: 3MB.
+                Soporta archivos PNG, JPG o WEBP. Tamaño máximo recomendado: 10MB.
               </p>
             </div>
           </div>

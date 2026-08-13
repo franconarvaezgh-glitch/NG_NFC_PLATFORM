@@ -70,10 +70,20 @@ async function asegurarBucketLogos() {
       const { error } = await getSupabaseServer().storage.createBucket('logos', {
         public: true,
         allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
-        fileSizeLimit: 3 * 1024 * 1024 // 3MB
+        fileSizeLimit: 10 * 1024 * 1024 // 10MB
       });
       if (error) {
         console.warn('Advertencia al crear bucket (posiblemente ya existe o RLS restrictiva):', error.message);
+      }
+    } else {
+      console.log('Actualizando límite de tamaño del bucket "logos" a 10MB...');
+      const { error: updateError } = await getSupabaseServer().storage.updateBucket('logos', {
+        public: true,
+        allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
+        fileSizeLimit: 10 * 1024 * 1024 // 10MB
+      });
+      if (updateError) {
+        console.warn('Advertencia al actualizar el tamaño del bucket:', updateError.message);
       }
     }
   } catch (e) {
@@ -303,7 +313,9 @@ export async function activarTarjeta(formData) {
         session = authData.session;
       }
     }
-    const userClient = getSupabaseServer();
+    const userClient = session?.access_token 
+      ? await getSupabaseUserClient(session.access_token) 
+      : getSupabaseServer();
 
     // --- PROCESAR CARGA DE ARCHIVO (LOGO) EN REGISTRO ---
     if (file && file.size > 0) {
@@ -312,7 +324,7 @@ export async function activarTarjeta(formData) {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const fileExt = file.name.split('.').pop();
-      const fileName = `${userId}-${Date.now()}.${fileExt}`;
+      const fileName = `${userId}_${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await userClient.storage
         .from('logos')
@@ -437,16 +449,37 @@ export async function actualizarPerfilAutenticado(accessToken, formData) {
 
     const redes = redesRaw ? JSON.parse(redesRaw) : {};
 
-    const userClient = getSupabaseServer();
+    const userClient = await getSupabaseUserClient(accessToken);
 
     // --- PROCESAR CARGA DE ARCHIVO (LOGO) EN ACTUALIZACIÓN ---
     if (file && file.size > 0) {
       await asegurarBucketLogos();
 
+      // Obtener el perfil actual para eliminar el logotipo obsoleto del storage
+      const { data: perfilActual } = await userClient
+        .from('perfiles')
+        .select('logo_url')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (perfilActual?.logo_url) {
+        try {
+          const oldUrl = perfilActual.logo_url;
+          const parts = oldUrl.split('/logos/');
+          if (parts.length > 1) {
+            const oldFileName = parts[1].split('?')[0];
+            console.log(`Eliminando logotipo obsoleto del storage: ${oldFileName}`);
+            await userClient.storage.from('logos').remove([oldFileName]);
+          }
+        } catch (e) {
+          console.error('Error al eliminar logotipo anterior:', e);
+        }
+      }
+
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}_${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await userClient.storage
         .from('logos')
@@ -479,7 +512,7 @@ export async function actualizarPerfilAutenticado(accessToken, formData) {
       .eq('id', user.id);
 
     if (dbError) throw dbError;
-    return { success: true };
+    return { success: true, logoUrl };
   } catch (error) {
     console.error('Error al actualizar perfil autenticado:', error);
     return { success: false, error: error.message || 'Error al guardar los cambios.' };

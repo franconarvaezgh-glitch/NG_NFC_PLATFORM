@@ -69,15 +69,34 @@ create or replace trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 
 -- Políticas de RLS para el almacenamiento (Supabase Storage - bucket 'logos')
--- Permite que los usuarios (tanto anónimos como autenticados) puedan subir y ver logotipos
-create policy "Permitir subidas públicas en logos" on storage.objects
-  for insert
-  with check (bucket_id = 'logos');
+-- Permite que los usuarios puedan ver logotipos, y que los autenticados los suban, actualicen y eliminen.
+DROP POLICY IF EXISTS "Permitir subidas públicas en logos" ON storage.objects;
+DROP POLICY IF EXISTS "Permitir lectura pública en logos" ON storage.objects;
+DROP POLICY IF EXISTS "Permitir actualizaciones en logos" ON storage.objects;
+DROP POLICY IF EXISTS "Permitir subidas a usuarios autenticados en logos" ON storage.objects;
+DROP POLICY IF EXISTS "Permitir actualizaciones a usuarios autenticados en logos" ON storage.objects;
+DROP POLICY IF EXISTS "Permitir eliminaciones a usuarios autenticados en logos" ON storage.objects;
 
-create policy "Permitir lectura pública en logos" on storage.objects
-  for select
-  using (bucket_id = 'logos');
+-- 1. Lectura pública (Cualquier persona puede ver los logos/fotos)
+CREATE POLICY "Permitir lectura pública en logos" ON storage.objects
+  FOR SELECT
+  USING (bucket_id = 'logos');
 
-create policy "Permitir actualizaciones en logos" on storage.objects
-  for update
-  using (bucket_id = 'logos');
+-- 2. Inserción permitida a usuarios autenticados
+CREATE POLICY "Permitir subidas a usuarios autenticados en logos" ON storage.objects
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (bucket_id = 'logos');
+
+-- 3. Actualización permitida a usuarios autenticados
+CREATE POLICY "Permitir actualizaciones a usuarios autenticados en logos" ON storage.objects
+  FOR UPDATE
+  TO authenticated
+  USING (bucket_id = 'logos')
+  WITH CHECK (bucket_id = 'logos');
+
+-- 4. Eliminación permitida a usuarios autenticados
+CREATE POLICY "Permitir eliminaciones a usuarios autenticados en logos" ON storage.objects
+  FOR DELETE
+  TO authenticated
+  USING (bucket_id = 'logos');

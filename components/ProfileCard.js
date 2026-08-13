@@ -98,6 +98,13 @@ export function getSocialUrl(key, val) {
 
 export default function ProfileCard({ profile, serialToken }) {
   const [copied, setCopied] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsMobile(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+    }
+  }, []);
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
@@ -327,7 +334,7 @@ export default function ProfileCard({ profile, serialToken }) {
               <a
                 key={net.key}
                 href={href}
-                target="_blank"
+                target={isMobile ? '_self' : '_blank'}
                 rel="noopener noreferrer"
                 className={`flex items-center gap-3 p-3 bg-neutral-950/40 border border-neutral-900 rounded-xl transition duration-300 text-neutral-400 hover:text-white ${net.color}`}
               >

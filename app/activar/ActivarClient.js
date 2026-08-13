@@ -127,8 +127,8 @@ export default function ActivarClient({ initialSerial }) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 3 * 1024 * 1024) {
-        setError('El logotipo seleccionado supera el límite permitido de 3MB.');
+      if (file.size > 10 * 1024 * 1024) {
+        setError('El logotipo seleccionado supera el límite permitido de 10MB.');
         return;
       }
       setError(null);
@@ -221,7 +221,7 @@ export default function ActivarClient({ initialSerial }) {
       }
     } catch (err) {
       console.error(err);
-      setError('Ocurrió un error inesperado al procesar la solicitud.');
+      setError(`Ocurrió un error inesperado al procesar la solicitud: ${err.message || 'Detalle no disponible.'}`);
     } finally {
       setLoading(false);
     }
@@ -462,7 +462,7 @@ export default function ActivarClient({ initialSerial }) {
                     <span>Subir Imagen</span>
                   </label>
                   <p className="text-[9px] text-neutral-500">
-                    Soporta PNG, JPG o WEBP. Máx 3MB.
+                    Soporta PNG, JPG o WEBP. Máx 10MB.
                   </p>
                 </div>
               </div>
